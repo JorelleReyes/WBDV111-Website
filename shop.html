@@ -140,38 +140,48 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
     <script>
+        
         function simulateInlineTracking(event) {
-            event.preventDefault();
-            const orderId = document.getElementById('inlineOrderId').value;
-            const resultDiv = document.getElementById('inline-tracking-result');
+    event.preventDefault();
 
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '<p style="color: var(--text-muted);">Fetching live status...</p>';
+    const orderId = document.getElementById('inlineOrderId').value;
+    const resultDiv = document.getElementById('inline-tracking-result');
 
-            setTimeout(() => {
-                resultDiv.innerHTML = `
-                    <h4 style="color: var(--dark-blue); margin-bottom: 20px;">Status for: <strong>${orderId}</strong></h4>
-                    <div class="tracking-timeline">
-                        <div class="step active">
-                            <div class="step-icon">📋</div>
-                            <p>Placed</p>
-                        </div>
-                        <div class="step active">
-                            <div class="step-icon">📦</div>
-                            <p>Packed</p>
-                        </div>
-                        <div class="step">
-                            <div class="step-icon">🚚</div>
-                            <p>Shipped</p>
-                        </div>
-                        <div class="step">
-                            <div class="step-icon">🏠</div>
-                            <p>Arrived</p>
-                        </div>
-                    </div>
-                `;
-            }, 800); 
-        }
+    const order = getStoredOrders().find(
+        storedOrder => getOrderId(storedOrder) === orderId
+    );
+
+    const eta = order && order.deliveryETA ? order.deliveryETA : '2-7';
+
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<p style="color: var(--text-muted);">Fetching live status...</p>';
+
+    setTimeout(() => {
+        resultDiv.innerHTML = `
+            <h4 style="color: var(--dark-blue); margin-bottom: 20px;">Status for: <strong>${orderId}</strong></h4>
+            <p style="margin-bottom: 18px; color: var(--text-muted);">Estimated delivery: ${eta} days</p>
+
+            <div class="tracking-timeline">
+                <div class="step active">
+                    <div class="step-icon">📋</div>
+                    <p>Placed</p>
+                </div>
+                <div class="step active">
+                    <div class="step-icon">📦</div>
+                    <p>Packed</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🚚</div>
+                    <p>Shipped</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">🏠</div>
+                    <p>Arrived</p>
+                </div>
+            </div>
+        `;
+    }, 800);
+}
 
         function copyOrderId(text) {
             navigator.clipboard.writeText(text).then(() => {
