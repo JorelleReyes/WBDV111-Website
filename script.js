@@ -143,6 +143,10 @@ function parsePrice(value) {
     return Number.isNaN(numericValue) ? 0 : numericValue;
 }
 
+function generateDeliveryETA() {
+    return Math.floor(Math.random() * 6) + 2;
+}
+
 function getOrderId(order) {
     return order.orderId || 'BBPT-' + new Date(order.datePlaced).getTime().toString().slice(-5);
 }
@@ -762,69 +766,75 @@ document.addEventListener('DOMContentLoaded', function () {
     let cart = JSON.parse(localStorage.getItem('userCart')) || [];
 
     function placeOrder() {
-        const checkoutForm = document.getElementById('checkout-form');
-        if (!checkoutForm) return;
+    const checkoutForm = document.getElementById('checkout-form');
+    if (!checkoutForm) return;
 
-        if (cart.length === 0) {
-            alert('Your cart is empty.');
-            return;
-        }
-
-        const checkoutEmail = normalizeEmail(document.getElementById('email')?.value);
-        if (checkoutEmail) {
-            setLoggedInUser(checkoutEmail);
-        }
-
-        const paymentField = document.querySelector('input[name="payment"]:checked');
-        let selectedPayment = 'Credit/Debit Card';
-        if (paymentField) {
-            if (paymentField.value === 'cod') selectedPayment = 'Cash on Delivery';
-            else if (paymentField.value === 'gcash') selectedPayment = 'GCash/E-Wallet';
-        }
-
-        const shippingFee = 50;
-        let subtotal = 0;
-
-        const orderItems = cart.map(item => {
-            const price = parsePrice(item.price);
-            const total = price * item.quantity;
-            subtotal += total;
-
-            return {
-                name: item.name,
-                price,
-                quantity: item.quantity,
-                total
-            };
-        });
-
-        const orders = getStoredOrders();
-        const orderId = 'BBPT-' + Math.floor(10000 + Math.random() * 90000);
-        const newOrder = {
-            orderId,
-            invoiceNumber: `INV-${orderId.replace(/^BBPT-/, '')}`,
-            customerName: document.getElementById('fname')?.value.trim() || 'Customer',
-            customerEmail: checkoutEmail || getCurrentUserEmail(),
-            shippingAddress: document.getElementById('address')?.value.trim() || '',
-            city: document.getElementById('city')?.value.trim() || '',
-            zipCode: document.getElementById('zip')?.value.trim() || '',
-            paymentMethod: selectedPayment,
-            datePlaced: new Date().toISOString(),
-            subtotal,
-            shippingFee,
-            total: subtotal + shippingFee,
-            items: orderItems
-        };
-
-        orders.push(newOrder);
-        saveStoredOrders(orders);
-        localStorage.removeItem('userCart');
-        const invoicePreviewOpened = generateInvoicePdfFromOrder(newOrder);
-        alert(invoicePreviewOpened
-            ? 'Order placed successfully! Your invoice preview is open, and you can download it from My Orders.'
-            : 'Order placed successfully! You can preview or download the invoice PDF from My Orders.');
-        window.location.href = 'shop.html';
+    if (cart.length === 0) {
+        alert('Your cart is empty.');
+        return;
     }
+
+    const checkoutEmail = normalizeEmail(document.getElementById('email')?.value);
+    if (checkoutEmail) {
+        setLoggedInUser(checkoutEmail);
+    }
+
+    const paymentField = document.querySelector('input[name="payment"]:checked');
+    let selectedPayment = 'Credit/Debit Card';
+    if (paymentField) {
+        if (paymentField.value === 'cod') selectedPayment = 'Cash on Delivery';
+        else if (paymentField.value === 'gcash') selectedPayment = 'GCash/E-Wallet';
+    }
+
+    const shippingFee = 50;
+    let subtotal = 0;
+
+    const orderItems = cart.map(item => {
+        const price = parsePrice(item.price);
+        const total = price * item.quantity;
+        subtotal += total;
+
+        return {
+            name: item.name,
+            price,
+            quantity: item.quantity,
+            total
+        };
+    });
+
+    const orders = getStoredOrders();
+    const orderId = 'BBPT-' + Math.floor(10000 + Math.random() * 90000);
+    const deliveryETA = generateDeliveryETA();
+
+    const newOrder = {
+        orderId,
+        invoiceNumber: `INV-${orderId.replace(/^BBPT-/, '')}`,
+        customerName: document.getElementById('fname')?.value.trim() || 'Customer',
+        customerEmail: checkoutEmail || getCurrentUserEmail(),
+        shippingAddress: document.getElementById('address')?.value.trim() || '',
+        city: document.getElementById('city')?.value.trim() || '',
+        zipCode: document.getElementById('zip')?.value.trim() || '',
+        paymentMethod: selectedPayment,
+        datePlaced: new Date().toISOString(),
+        deliveryETA,
+        subtotal,
+        shippingFee,
+        total: subtotal + shippingFee,
+        items: orderItems
+    };
+
+    orders.push(newOrder);
+    saveStoredOrders(orders);
+    localStorage.removeItem('userCart');
+
+    const invoicePreviewOpened = generateInvoicePdfFromOrder(newOrder);
+
+    alert(invoicePreviewOpened
+        ? 'Order placed successfully! Your invoice preview is open, and you can download it from My Orders.'
+        : 'Order placed successfully! You can preview or download the invoice PDF from My Orders.');
+
+    window.location.href = 'shop.html';
+}
 
     const checkoutForm = document.getElementById('checkout-form');
     if (checkoutForm) {
