@@ -319,6 +319,52 @@ header {
     opacity: 1;
 }
 
+.copy-email-btn {
+    background: var(--light-blue);
+    border: 1px solid var(--primary-blue);
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--dark-blue);
+    position: relative;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.copy-email-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.copy-email-btn::after {
+    content: "copy email";
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(27, 58, 87, 0.9);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    font-family: 'Arial', sans-serif;
+    font-weight: normal;
+}
+
+.copy-email-btn:hover::after {
+    opacity: 1;
+}
+
 @media (max-width: 768px) {
     header {
         position: static;
